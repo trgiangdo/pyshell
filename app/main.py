@@ -8,8 +8,12 @@ def main():
 
         if command == "exit":
             exit()
+        if command.startswith("echo "):
+            message = command[5:]
+            print(message)
+            continue
 
-        sys.stdout.write(f"{command}: command not found\n")
+        print(f"{command}: command not found")
 
 
 if __name__ == "__main__":
