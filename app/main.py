@@ -1,4 +1,5 @@
 import sys
+import os
 from typing import Callable, Dict
 
 def handle_exit(command: str):
@@ -15,8 +16,20 @@ def handle_type(command: str):
     builtin_command_strip = [command.strip() for command in builtin_command.keys()]
     if message.strip() in builtin_command_strip:
         print(f"{message} is a shell builtin")
-    else:
-        print(f"{message}: not found")
+        return
+
+    PATH = os.environ["PATH"]
+    for path in PATH.split(os.pathsep):
+        if not os.path.exists(path):
+            continue
+
+        for filename in os.listdir(path):
+            file_path = os.path.join(path, filename)
+            if message == filename and os.path.isfile(file_path) and os.access(file_path, os.X_OK):
+                print((f"{message} is {file_path}"))
+                return
+
+    print(f"{message}: not found")
 
 
 builtin_command: Dict[str, Callable] = {
