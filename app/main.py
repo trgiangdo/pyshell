@@ -39,10 +39,15 @@ def handle_type(command: str):
     print(f"{message}: not found")
 
 
+def handle_pwd(command: str):
+    print(os.getcwd())
+
+
 builtin_command: Dict[str, Callable] = {
     "exit": handle_exit,
     "echo": handle_echo,
     "type": handle_type,
+    "pwd": handle_pwd,
 }
 
 
