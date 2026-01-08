@@ -7,9 +7,17 @@ import itertools
 
 
 def parse_args(user_command: str) -> List[str]:
-    quote_split = user_command.replace("''", "").split("'")
-    args = [quote_split[i].split(" ") if not i%2 else [quote_split[i]] for i in range(len(quote_split))]
-    return [x for x in list(itertools.chain.from_iterable(args)) if x]
+    def parse_single_quote(command: str) -> List[str]:
+        quote_split = command.replace("''", "").split("'")
+        args = [quote_split[i].split(" ") if not i%2 else [quote_split[i]] for i in range(len(quote_split))]
+        return [x for x in list(itertools.chain.from_iterable(args)) if x]
+
+    def parse_double_quote(command: str) -> List[str]:
+        quote_split = command.replace('""', "").split('"')
+        args = [parse_single_quote(quote_split[i]) if not i%2 else [quote_split[i]] for i in range(len(quote_split))]
+        return [x for x in list(itertools.chain.from_iterable(args)) if x]
+
+    return parse_double_quote(user_command)
 
 
 def find_executable(command: str) -> str:
