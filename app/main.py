@@ -1,8 +1,15 @@
 import subprocess
 import sys
 import os
-from typing import Callable, Dict
+from typing import Any, Callable, Dict, List
 from pathlib import Path
+import itertools
+
+
+def parse_args(user_command: str) -> List[str]:
+    quote_split = user_command.replace("''", "").split("'")
+    args = [quote_split[i].split(" ") if not i%2 else [quote_split[i]] for i in range(len(quote_split))]
+    return [x for x in list(itertools.chain.from_iterable(args)) if x]
 
 
 def find_executable(command: str) -> str:
@@ -18,17 +25,16 @@ def find_executable(command: str) -> str:
     return ""
 
 
-def handle_exit(command: str):
+def handle_exit(args: List[str]):
     exit()
 
 
-def handle_echo(command: str):
-    message = command[5:]
-    print(message)
+def handle_echo(args: List[str]):
+    print(" ".join(args[1:]))
 
 
-def handle_type(command: str):
-    message = command[5:]
+def handle_type(args: List[str]):
+    message = args[1]
     if message.strip() in builtin_command:
         print(f"{message} is a shell builtin")
         return
@@ -40,12 +46,12 @@ def handle_type(command: str):
     print(f"{message}: not found")
 
 
-def handle_pwd(command: str):
+def handle_pwd(args: List[str]):
     print(os.getcwd())
 
 
-def handle_cd(command: str):
-    des = command[3:]
+def handle_cd(args: List[str]):
+    des = args[1]
     des = des.replace("~", str(Path.home()), 1)
 
     if not os.path.exists(des):
@@ -55,7 +61,7 @@ def handle_cd(command: str):
     os.chdir(des)
 
 
-builtin_command: Dict[str, Callable] = {
+builtin_command: Dict[str, Callable[[List[str]], Any]] = {
     "exit": handle_exit,
     "echo": handle_echo,
     "type": handle_type,
@@ -65,25 +71,25 @@ builtin_command: Dict[str, Callable] = {
 
 
 def main():
-    while True:
-        sys.stdout.write("$ ")
-        user_command = input()
-        args = user_command.split(" ")
+    sys.stdout.write("$ ")
+    user_command = input()
+    args = parse_args(user_command)
 
-        for command, command_handler in builtin_command.items():
-            if args[0] == command:
-                command_handler(user_command)
-                break
+    for command, command_handler in builtin_command.items():
+        if args[0] == command:
+            command_handler(args)
+            break
+    else:
+        if find_executable(args[0]):
+            result = subprocess.run(args, capture_output=True, text=True)
+            if result.stdout:
+                print(result.stdout.strip())
+            if result.stderr:
+                print(result.stderr.strip())
         else:
-            if find_executable(args[0]):
-                result = subprocess.run(args, capture_output=True, text=True)
-                if result.stdout:
-                    print(result.stdout.strip())
-                if result.stderr:
-                    print(result.stderr.strip())
-            else:
-                print(f"{args[0]}: command not found")
+            print(f"{args[0]}: command not found")
 
 
 if __name__ == "__main__":
-    main()
+    while True:
+        main()
