@@ -43,11 +43,21 @@ def handle_pwd(command: str):
     print(os.getcwd())
 
 
+def handle_cd(command: str):
+    des = command[3:]
+    if not os.path.exists(des):
+        print(f"cd: {des}: No such file or directory")
+        return
+
+    os.chdir(des)
+
+
 builtin_command: Dict[str, Callable] = {
     "exit": handle_exit,
     "echo": handle_echo,
     "type": handle_type,
     "pwd": handle_pwd,
+    "cd": handle_cd,
 }
 
 
