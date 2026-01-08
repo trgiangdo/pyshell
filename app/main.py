@@ -2,6 +2,7 @@ import subprocess
 import sys
 import os
 from typing import Callable, Dict
+from pathlib import Path
 
 
 def find_executable(command: str) -> str:
@@ -45,6 +46,8 @@ def handle_pwd(command: str):
 
 def handle_cd(command: str):
     des = command[3:]
+    des = des.replace("~", str(Path.home()), 1)
+
     if not os.path.exists(des):
         print(f"cd: {des}: No such file or directory")
         return
@@ -71,15 +74,15 @@ def main():
             if args[0] == command:
                 command_handler(user_command)
                 break
-            elif find_executable(args[0]):
+        else:
+            if find_executable(args[0]):
                 result = subprocess.run(args, capture_output=True, text=True)
                 if result.stdout:
                     print(result.stdout.strip())
                 if result.stderr:
                     print(result.stderr.strip())
-                break
-        else:
-            print(f"{args[0]}: command not found")
+            else:
+                print(f"{args[0]}: command not found")
 
 
 if __name__ == "__main__":
