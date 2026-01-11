@@ -16,7 +16,7 @@ def parse_args(user_command: str) -> List[str]:
         if backslash:
             arg += current_char
             backslash = False
-        elif current_char == "\\" and not single_quote and not double_quote:
+        elif current_char == "\\" and not single_quote:
             backslash = True
         elif current_char == "'" and not double_quote:
             single_quote = not single_quote
