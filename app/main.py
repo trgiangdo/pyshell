@@ -3,21 +3,36 @@ import sys
 import os
 from typing import Any, Callable, Dict, List
 from pathlib import Path
-import itertools
 
 
 def parse_args(user_command: str) -> List[str]:
-    def parse_single_quote(command: str) -> List[str]:
-        quote_split = command.replace("''", "").split("'")
-        args = [quote_split[i].split(" ") if not i%2 else [quote_split[i]] for i in range(len(quote_split))]
-        return [x for x in list(itertools.chain.from_iterable(args)) if x]
+    args = []
 
-    def parse_double_quote(command: str) -> List[str]:
-        quote_split = command.replace('""', "").split('"')
-        args = [parse_single_quote(quote_split[i]) if not i%2 else [quote_split[i]] for i in range(len(quote_split))]
-        return [x for x in list(itertools.chain.from_iterable(args)) if x]
+    arg = ""
+    single_quote = False
+    double_quote = False
+    backslash = False
+    for current_char in user_command:
+        if backslash:
+            arg += current_char
+            backslash = False
+        elif current_char == "\\" and not single_quote and not double_quote:
+            backslash = True
+        elif current_char == "'" and not double_quote:
+            single_quote = not single_quote
+        elif current_char == '"' and not single_quote:
+            double_quote = not double_quote
+        elif current_char == " " and not single_quote and not double_quote:
+            if arg:
+                args.append(arg)
+                arg = ""
+        else:
+            arg += current_char
 
-    return parse_double_quote(user_command)
+    if arg:
+        args.append(arg)
+    return args
+
 
 
 def find_executable(command: str) -> str:
