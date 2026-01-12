@@ -104,11 +104,16 @@ def main():
 
     info_path = None
     error_path = None
-    if len(args) > 2 and args[-2] in [">", "1>"]:
-        info_path = args[-1]
-        args = args[:-2]
-    elif len(args) > 2 and args[-2] == "2>":
-        error_path = args[-1]
+    dump_mode = "w"
+    if len(args) > 2 and args[-2] in [">", "1>", "2>", "1>>", ">>", "2>>"]:
+        if args[-2] in [">", "1>", "1>>", ">>"]:
+            info_path = args[-1]
+        elif args[-2] in ["2>", "2>>"]:
+            error_path = args[-1]
+
+        if args[-2].endswith(">>"):
+            dump_mode = "a"
+
         args = args[:-2]
 
 
@@ -126,7 +131,7 @@ def main():
         else:
             Logger.error(f"{args[0]}: command not found")
 
-    Logger.dump(info_path, error_path)
+    Logger.dump(info_path, error_path, dump_mode)
 
 
 if __name__ == "__main__":

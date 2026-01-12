@@ -14,11 +14,11 @@ class Logger:
         cls.__log.append(("error", datetime.datetime.now(), message))
 
     @classmethod
-    def dump(cls, info_path: Optional[str], error_path: Optional[str]):
+    def dump(cls, info_path: Optional[str], error_path: Optional[str], dump_mode: str = "w"):
         if info_path:
-            info_f = open(info_path, "w")
+            info_f = open(info_path, dump_mode)
         if error_path:
-            error_f = open(error_path, "w")
+            error_f = open(error_path, dump_mode)
 
         for msg in cls.__log:
             if msg[0] == "info":
