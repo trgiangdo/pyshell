@@ -4,6 +4,8 @@ import os
 from typing import Any, Callable, Dict, List
 from pathlib import Path
 
+from .logger import Logger
+
 
 def parse_args(user_command: str) -> List[str]:
     args = []
@@ -55,24 +57,24 @@ def handle_exit(args: List[str]):
 
 
 def handle_echo(args: List[str]):
-    print(" ".join(args[1:]))
+    Logger.info(" ".join(args[1:]))
 
 
 def handle_type(args: List[str]):
     message = args[1]
     if message.strip() in builtin_command:
-        print(f"{message} is a shell builtin")
+        Logger.info(f"{message} is a shell builtin")
         return
 
     if exec_path := find_executable(message):
-        print((f"{message} is {exec_path}"))
+        Logger.info((f"{message} is {exec_path}"))
         return
 
-    print(f"{message}: not found")
+    Logger.error(f"{message}: not found")
 
 
 def handle_pwd(args: List[str]):
-    print(os.getcwd())
+    Logger.info(os.getcwd())
 
 
 def handle_cd(args: List[str]):
@@ -80,7 +82,7 @@ def handle_cd(args: List[str]):
     des = des.replace("~", str(Path.home()), 1)
 
     if not os.path.exists(des):
-        print(f"cd: {des}: No such file or directory")
+        Logger.error(f"cd: {des}: No such file or directory")
         return
 
     os.chdir(des)
@@ -100,6 +102,11 @@ def main():
     user_command = input()
     args = parse_args(user_command)
 
+    output_path = None
+    if len(args) > 2 and args[-2] in [">", "1>"]:
+        output_path = args[-1]
+        args = args[:-2]
+
     for command, command_handler in builtin_command.items():
         if args[0] == command:
             command_handler(args)
@@ -108,11 +115,13 @@ def main():
         if find_executable(args[0]):
             result = subprocess.run(args, capture_output=True, text=True)
             if result.stdout:
-                print(result.stdout.strip())
+                Logger.info(result.stdout.strip())
             if result.stderr:
-                print(result.stderr.strip())
+                Logger.error(result.stderr.strip())
         else:
-            print(f"{args[0]}: command not found")
+            Logger.error(f"{args[0]}: command not found")
+
+    Logger.dump(output_path)
 
 
 if __name__ == "__main__":
