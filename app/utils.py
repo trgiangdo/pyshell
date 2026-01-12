@@ -1,19 +1,22 @@
 import os
 import readline
-from typing import List
+from typing import Dict, List
 
 
-def find_executable(command: str) -> str:
+def find_executable() -> Dict[str, str]:
+    executable = {}
+
     PATH = os.environ["PATH"]
     for path in PATH.split(os.pathsep):
         if not os.path.exists(path):
             continue
 
-        file_path = os.path.join(path, command)
-        if os.access(file_path, os.X_OK):
-            return file_path
+        for filename in os.listdir(path):
+            file_path = os.path.join(path, filename)
+            if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
+                executable[filename] = file_path
 
-    return ""
+    return executable
 
 
 def input_with_autocompletion(commands: List[str]) -> str:

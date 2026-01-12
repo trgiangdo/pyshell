@@ -7,8 +7,10 @@ from .utils import find_executable, input_with_autocompletion, parse_args, redir
 
 
 def main():
+    executables = find_executable()
+
     sys.stdout.write("$ ")
-    user_command = input_with_autocompletion(list(builtin_command.keys()))
+    user_command = input_with_autocompletion(list(builtin_command.keys()) + list(executables.keys()))
 
     args = parse_args(user_command)
     args, info_path, error_path, dump_mode = redirect_output(args)
@@ -20,7 +22,7 @@ def main():
             command_handler(args)
             break
     else:
-        if find_executable(args[0]):
+        if args[0] in executables:
             result = subprocess.run(args, capture_output=True, text=True)
             if result.stdout:
                 Logger.info(result.stdout.strip())

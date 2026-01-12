@@ -20,8 +20,9 @@ def handle_type(args: List[str]):
         Logger.info(f"{message} is a shell builtin")
         return
 
-    if exec_path := find_executable(message):
-        Logger.info((f"{message} is {exec_path}"))
+    executables = find_executable()
+    if message in executables:
+        Logger.info((f"{message} is {executables[message]}"))
         return
 
     Logger.error(f"{message}: not found")
