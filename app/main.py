@@ -10,7 +10,7 @@ def main():
     executables = find_executable()
 
     sys.stdout.write("$ ")
-    user_command = input_with_autocompletion(list(builtin_command.keys()) + list(executables.keys()))
+    user_command = input_with_autocompletion(sorted(list(builtin_command.keys()) + list(executables.keys())))
 
     args = parse_args(user_command)
     args, info_path, error_path, dump_mode = redirect_output(args)

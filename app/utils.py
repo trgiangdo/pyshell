@@ -24,8 +24,19 @@ def input_with_autocompletion(commands: List[str]) -> str:
         matches = [command + " " for command in commands if command.startswith(text)]
         return matches[state] if state < len(matches) else None
 
+    def display_matches_hook(substitution, matches, longest_match_length):
+        """Custom display for showing completion matches without trailing spaces"""
+        print()
+        for match in matches:
+            print(match.rstrip(), end="  ")  # Remove space for display
+        print()
+        print("$ " + readline.get_line_buffer(), end="", flush=True)
+
     readline.parse_and_bind("tab: complete")
     readline.set_completer(complete)
+    readline.set_completer_delims(" \t\n;")
+    readline.set_completion_display_matches_hook(display_matches_hook)
+
     user_command = input()
     return user_command.strip()
 
