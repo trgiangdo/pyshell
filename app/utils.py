@@ -1,4 +1,5 @@
 import os
+import readline
 from typing import List
 
 
@@ -13,6 +14,17 @@ def find_executable(command: str) -> str:
             return file_path
 
     return ""
+
+
+def input_with_autocompletion(commands: List[str]) -> str:
+    def complete(text, state):
+        matches = [command + " " for command in commands if command.startswith(text)]
+        return matches[state] if state < len(matches) else None
+
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer(complete)
+    user_command = input()
+    return user_command.strip()
 
 
 def parse_args(user_command: str) -> List[str]:

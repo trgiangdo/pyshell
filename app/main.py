@@ -3,15 +3,17 @@ import sys
 
 from .builtin import builtin_command
 from .logger import Logger
-from .utils import find_executable, parse_args, redirect_output
+from .utils import find_executable, input_with_autocompletion, parse_args, redirect_output
 
 
 def main():
     sys.stdout.write("$ ")
-    user_command = input()
+    user_command = input_with_autocompletion(list(builtin_command.keys()))
 
     args = parse_args(user_command)
     args, info_path, error_path, dump_mode = redirect_output(args)
+    if not args:
+        return
 
     for command, command_handler in builtin_command.items():
         if args[0] == command:
