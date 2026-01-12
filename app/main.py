@@ -102,10 +102,15 @@ def main():
     user_command = input()
     args = parse_args(user_command)
 
-    output_path = None
+    info_path = None
+    error_path = None
     if len(args) > 2 and args[-2] in [">", "1>"]:
-        output_path = args[-1]
+        info_path = args[-1]
         args = args[:-2]
+    elif len(args) > 2 and args[-2] == "2>":
+        error_path = args[-1]
+        args = args[:-2]
+
 
     for command, command_handler in builtin_command.items():
         if args[0] == command:
@@ -121,7 +126,7 @@ def main():
         else:
             Logger.error(f"{args[0]}: command not found")
 
-    Logger.dump(output_path)
+    Logger.dump(info_path, error_path)
 
 
 if __name__ == "__main__":
